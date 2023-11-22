@@ -51,31 +51,63 @@ actor class DAO() = this {
 	};
 	public type Result<A, B> = Result.Result<A, B>;
 	public type HashMap<A, B> = HashMap.HashMap<A, B>;
-
-	let dao : HashMap<Principal, Member> = HashMap.HashMap<Principal, Member>(0, Principal.equal, Principal.hash);
-
+	//1. Define an immutable variable `members` of type `Hashmap<Principal,Member>` that will be used to store the members of your DAO.
+	let members : HashMap.HashMap<Principal, Member> = HashMap.HashMap<Principal, Member>(0, Principal.equal, Principal.hash);
+	//2. Implement the `addMember` function, this function takes a `member` of type `Member` as a parameter, adds a new `member` to the `members` hashmap. The function should check if the `caller` is already a member. If that's the case use the `Result` type to return an error message.
 	public shared ({ caller }) func addMember(member : Member) : async Result<(), Text> {
-		return #err("Not implemented");
+		switch (members.get(caller)) {
+			case (? member) {
+				return #err("Already a member");
+			};
+			case (null) {
+				members.put(caller, member);
+				return #ok();
+			};
+		};
 	};
-
+	//4. Implement the `updateMember` function, this function takes a `member` of type `Member` as a parameter and updates the corresponding member. You will us the `Result` type for your return value. If the member doesn't exist, return an error message.
 	public shared ({ caller }) func updateMember(member : Member) : async Result<(), Text> {
-		return #err("Not implemented");
+		switch (members.get(caller)) {
+			case (null) {
+				return #err("Member not found");
+			};
+			case (? _) {
+				members.put(caller, member);
+				return #ok();
+			};
+		};
 	};
-
+	//7. Implement the `removeMember` function, this function takes a `principal` of type `Principal` as a parameter and removes the corresponding member. You will us the `Result` type for your return value. If the member doesn't exist, return an error message.
 	public shared ({ caller }) func removeMember() : async Result<(), Text> {
-		return #err("Not implemented");
+		switch (members.get(caller)) {
+			case (null) {
+				return #err("Member not found");
+			};
+			case (? member) {
+				members.delete(caller);
+				return #ok();
+			};
+		};
 	};
+	//3. Implement the `getMember` query function, this function takes a `principal` of type `Principal` as a parameter and returns the corresponding member. You will us the `Result` type for your return value.
+	public query func getMember(principal : Principal) : async Result<Member, Text> {
+		switch (members.get(principal)) {
+			case (null) {
+				return #err("Member not found");
+			};
+			case (? member) {
+				return #ok(member);
+			};
 
-	public query func getMember(p : Principal) : async Result<Member, Text> {
-		return #err("Not implemented");
+		};
 	};
-
+	//5. Implement the `getAllMembers` query function, this function takes no parameters and returns all the members of your DAO as an array of type `[Member]`.
 	public query func getAllMembers() : async [Member] {
-		return Iter.toArray(dao.vals());
+		return Iter.toArray(members.vals());
 	};
-
+	//6. Implement the `numberOfMembers` query function, this function takes no parameters and returns the number of members of your DAO as a `Nat`.
 	public query func numberOfMembers() : async Nat {
-		return 0;
+		return members.size();
 	};
 
 	///////////////

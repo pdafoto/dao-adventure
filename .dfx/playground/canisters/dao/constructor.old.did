@@ -1,0 +1,127 @@
+type voteResult = 
+ variant {
+   err: VoteErr;
+   ok: VoteOk;
+ };
+type createProposalResult = 
+ variant {
+   err: CreateProposalErr;
+   ok: CreateProposalOk;
+ };
+type VoteOk = 
+ variant {
+   ProposalAccepted;
+   ProposalOpen;
+   ProposalRefused;
+ };
+type VoteErr = 
+ variant {
+   AlreadyVoted;
+   NotImplemented;
+   ProposalEnded;
+   ProposalNotFound;
+ };
+type Subaccount = blob;
+type StreamingStrategy = variant {
+                           Callback:
+                            record {
+                              callback: StreamingCallback;
+                              token: StreamingCallbackToken;
+                            };};
+type StreamingCallbackToken = 
+ record {
+   content_encoding: text;
+   index: nat;
+   key: text;
+ };
+type StreamingCallbackResponse = 
+ record {
+   body: blob;
+   token: opt StreamingCallbackToken;
+ };
+type StreamingCallback = func (StreamingCallbackToken) ->
+                          (StreamingCallbackResponse) query;
+type Status = 
+ variant {
+   Accepted;
+   Open;
+   Rejected;
+ };
+type Result_1 = 
+ variant {
+   err: text;
+   ok: Member;
+ };
+type Result = 
+ variant {
+   err: text;
+   ok;
+ };
+type Proposal = 
+ record {
+   id: nat;
+   manifest: text;
+   status: Status;
+   voters: vec principal;
+   votes: int;
+ };
+type Member = 
+ record {
+   age: nat;
+   name: text;
+ };
+type HttpResponse = 
+ record {
+   body: blob;
+   headers: vec HeaderField;
+   status_code: nat16;
+   streaming_strategy: opt StreamingStrategy;
+ };
+type HttpRequest = 
+ record {
+   body: blob;
+   headers: vec HeaderField;
+   method: text;
+   url: text;
+ };
+type HeaderField = 
+ record {
+   text;
+   text;
+ };
+type CreateProposalOk = nat;
+type CreateProposalErr = 
+ variant {
+   NotDAOMember;
+   NotEnoughTokens;
+   NotImplemented;
+ };
+type Account = 
+ record {
+   owner: principal;
+   subaccount: opt Subaccount;
+ };
+service : {
+  addGoal: (text) -> ();
+  addMember: (Member) -> (Result);
+  balanceOf: (Account) -> (nat) query;
+  createProposal: (text) -> (createProposalResult);
+  getAllMembers: () -> (vec Member) query;
+  getGoals: () -> (vec text) query;
+  getManifesto: () -> (text) query;
+  getMember: (principal) -> (Result_1) query;
+  getName: () -> (text) query;
+  getProposal: (nat) -> (opt Proposal) query;
+  http_request: (HttpRequest) -> (HttpResponse);
+  mint: (principal, nat) -> ();
+  numberOfMembers: () -> (nat) query;
+  removeMember: () -> (Result);
+  setManifesto: (text) -> ();
+  tokenName: () -> (text) query;
+  tokenSymbol: () -> (text) query;
+  totalSupply: () -> (nat) query;
+  transfer: (Account, Account, nat) -> (Result);
+  updateMember: (Member) -> (Result);
+  vote: (nat, bool) -> (voteResult);
+  whoami: () -> (principal);
+}
