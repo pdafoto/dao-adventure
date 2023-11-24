@@ -120,29 +120,72 @@ actor class DAO() = this {
 		owner : Principal;
 		subaccount : ?Subaccount;
 	};
-
+	//1. Define the `ledger` variable. This variable will be used to store the balance of each account. The key of the `ledger` variable is of type `Account` and the value is of type `Nat`.
+	var ledger : HashMap.HashMap<Account, Nat> = HashMap.HashMap(0, Account.accountsEqual, Account.accountsHash);
+	//2. Implement the `tokenName` function, this function takes no parameters and returns the name of your token as a `Text`.
+	let token : Text = "Democratics";
 	public query func tokenName() : async Text {
-		return "Not implemented";
+		return token;
 	};
-
+	//3. Implement the `tokenSymbol` function, this function takes no parameters and returns the symbol of your token as a `Text`.
+	let tokenid : Text = "DMC";
 	public query func tokenSymbol() : async Text {
-		return "Not implemented";
+		return tokenid;
 	};
-
-	public func mint(owner : Principal, amount : Nat) : async () {
-		return;
+	//4. Implement the `mint` function. This function takes a `Principal` and a `Nat` as arguments. It adds the `Nat` to the balance of the default account of the given `Principal` and returns nothing.
+	public func mint(to : Principal, amount : Nat) : async () {
+		let account : Account.Account = {
+			owner = to;
+			subaccount = null;
+		};
+		ledger.put(account, amount);
 	};
-
+	//5. Implement the `transfer` function. This function takes an `Account` object for the sender (`from`), an `Account` object for the recipient (`to`), and a `Nat` value for the amount to be transferred. It transfers the specified amou
 	public shared ({ caller }) func transfer(from : Account, to : Account, amount : Nat) : async Result<(), Text> {
-		return #err("Not implemented");
+		let origin = ledger.get(from);
+		switch (origin) {
+			case (null) {
+				return #err("Sender has no account.");
+			};
+			case (?origin) {
+				if (origin < amount) {
+					return #err ("Insuficent funds in your account.");
+				}
+				else {
+					let destination = ledger.get(to);
+					switch (destination) {
+						case (null) {
+							ledger.put(to, amount);
+						};
+						case (?destination) {
+							ledger.put(to, destination + amount);
+						};
+					};
+					ledger.put(from, origin - amount);
+					return #ok();
+				};
+			};
+		};
 	};
-
+	//6. Implement the `balanceOf` query function. This function takes an `Account` object as an argument and returns the balance of the given account as a `Nat`. It returns 0 if the account does not exist in the `ledger` variable.
 	public query func balanceOf(account : Account) : async Nat {
-		return 0;
+		let balance = ledger.get(account);
+		switch (balance){
+			case (null){
+				return 0;
+			};
+			case (?balance){
+				return balance;
+			};
+		};
 	};
-
+	//7. Implement the `totalSupply` query function. This function takes no parameters and returns the total supply of your token as a `Nat`.
 	public query func totalSupply() : async Nat {
-		return 0;
+		var total : Nat = 0;
+		for (balance in ledger.vals()) {
+			total += balance;
+		};
+		return total;
 	};
 
 	///////////////
