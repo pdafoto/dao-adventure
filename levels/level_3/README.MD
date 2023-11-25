@@ -1,4 +1,5 @@
 # Level 3 - Supercharging your DAO with economic power
+<img src="../../assets/level_3/cover.png"  style="width: 100%;"/>
 
 ## Introduction
 
@@ -65,18 +66,19 @@ tokenSymbol : shared query () -> async Text;
 
 4. Implement the `mint` function. This function takes a `Principal` and a `Nat` as arguments. It adds the `Nat` to the balance of the default account of the given `Principal` and returns nothing.
 
-````motoko
-mint : shared (Principal, Nat) -> async ();
 ```motoko
+mint : shared (Principal, Nat) -> async ();
+```
 
 > The default account is the account with a `subaccount` set to `null`.
 
 > In a real world scenario, the `mint` function would be restricted to a specific set of identities. For the sake of simplicity, we will not implement this restriction.
 
 5. Implement the `transfer` function. This function takes an `Account` object for the sender (`from`), an `Account` object for the recipient (`to`), and a `Nat` value for the amount to be transferred. It transfers the specified amount of tokens from the sender's account to the recipient's account. You will use the  `Result` type for your return value.
+
 ```motoko
 transfer : shared (from : Account, to : Account, amount:  Nat) -> async Result<(), Text>;
-````
+```
 
 6. Implement the `balanceOf` query function. This function takes an `Account` object as an argument and returns the balance of the given account as a `Nat`. It returns 0 if the account does not exist in the `ledger` variable.
 

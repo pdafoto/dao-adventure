@@ -6,14 +6,14 @@
 
 - Make sure to join the [Motoko Bootcamp Discord](https://discord.gg/uAvPEZtD4e) to get help and support from our community.
 - Start this Codespaces by clicking on the green button "Code" and then "Open with Codespaces".
-- Watch [our video to learn how to get started with Motoko Bootcamp](https://www.youtube.com/watch?v=Z3Q0s7jYgNA).
+- Watch [our video to learn how to get started with Motoko Bootcamp](https://www.youtube.com/watch?v=y9bmdjYH-Ew).
 
 ## How to navigate this repository? 🧭
 
 This repository contains a variety of resources, each serving a specific purpose. Here is a comprehensive list of the resources available, along with a brief explanation of each:
 
 ### Lessons 📚
-This repository contains 13 chapters and 2 appendix. Those lessons will teach the fundamentals of **Motoko**, the **Internet Computer** and **DAOs**. Each lesson contains a README file with the material. 
+This repository contains 13 chapters and 2 appendix. Those lessons will teach the fundamentals of **Motoko**, the **Internet Computer** and **DAOs**. Each lesson contains a README file with the material.
 
 For instance, you can check the [the 1st lesson](./lessons/chapter-1/CHAPTER-1.MD).
 

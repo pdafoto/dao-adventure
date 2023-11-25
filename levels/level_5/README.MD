@@ -1,4 +1,5 @@
 # Level 5 - Showing the DAO to the world
+<img src="../../assets/level_5/cover.png"  style="width: 100%;"/>
 
 ## Introduction
 
@@ -75,18 +76,17 @@ public query func http_request(request : HttpRequest) : async HttpResponse {
 };
 ```
 
-4. Implement the `http_request` query function. This function takes a `request` of type `HttpRequest` as a parameter and returns a `HttpResponse` object. This function will be used to serve the webpage of your DAO. 
+4. Implement the `http_request` query function. This function takes a `request` of type `HttpRequest` as a parameter and returns a `HttpResponse` object. This function will be used to serve the webpage of your DAO.
 
 ## 📺 Interface
 
 At the end of this level, your canister should implement the following interface:
-
-    ```motoko
-    actor {
-        getStats : shared query () -> async DAOStats;
-        http_request : shared query (request : HttpRequest) -> async HttpResponse;
-    }
-    ```
+```motoko
+actor {
+  getStats : shared query () -> async DAOInfo;
+  http_request : shared query (request : HttpRequest) -> async HttpResponse;
+}
+```
 
 ## 📚 Resources
 

@@ -52,9 +52,21 @@ module {
         #ProposalNotFound;
         #AlreadyVoted;
         #ProposalEnded;
+        #NotDAOMember;
+        #NotEnoughTokens;
         #NotImplemented; // This is just a placeholder for the template to compile - can be removed
     };
 
     public type VoteResult = Result<VoteOk, VoteErr>;
+
+    // Level 5
+    public type DAOInfo = {
+        name : Text;
+        manifesto : Text;
+        goals : [Text];
+        member : [Text];
+        logo : Text;
+        numberOfMembers : Nat;
+    };
 
 };

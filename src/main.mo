@@ -274,6 +274,14 @@ actor class DAO() = this {
 	//     return webpage;
 	// };
 
+	public type DAOInfo = {
+		name : Text;
+		manifesto : Text;
+		goals : [Text];
+		member : [Text];
+		logo : Text;
+		numberOfMembers : Nat;
+	};
 	public type HttpRequest = Http.Request;
 	public type HttpResponse = Http.Response;
 
@@ -283,6 +291,17 @@ actor class DAO() = this {
 			headers = [];
 			body = Blob.fromArray([]);
 			streaming_strategy = null;
+		});
+	};
+
+	public query func getStats() : async DAOInfo {
+		return ({
+			name = "";
+			manifesto = "";
+			goals = [];
+			member = [];
+			logo = "";
+			numberOfMembers = 0;
 		});
 	};
 
