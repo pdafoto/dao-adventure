@@ -1,9 +1,5 @@
 type Account = record { owner : principal; subaccount : opt Subaccount };
-type CreateProposalErr = variant {
-  NotDAOMember;
-  NotImplemented;
-  NotEnoughTokens;
-};
+type CreateProposalErr = variant { NotDAOMember; NotEnoughTokens };
 type CreateProposalOk = nat;
 type DAO = service {
   addGoal : (text) -> ();
@@ -16,6 +12,7 @@ type DAO = service {
   getMember : (principal) -> (Result_1) query;
   getName : () -> (text) query;
   getProposal : (nat) -> (opt Proposal) query;
+  getStats : () -> (DAOInfo) query;
   http_request : (HttpRequest) -> (HttpResponse);
   mint : (principal, nat) -> ();
   numberOfMembers : () -> (nat) query;
@@ -28,6 +25,14 @@ type DAO = service {
   updateMember : (Member) -> (Result);
   vote : (nat, bool) -> (voteResult);
   whoami : () -> (principal);
+};
+type DAOInfo = record {
+  member : vec text;
+  numberOfMembers : nat;
+  logo : text;
+  name : text;
+  manifesto : text;
+  goals : vec text;
 };
 type HeaderField = record { text; text };
 type HttpRequest = record {
@@ -72,12 +77,7 @@ type StreamingStrategy = variant {
   };
 };
 type Subaccount = vec nat8;
-type VoteErr = variant {
-  AlreadyVoted;
-  ProposalEnded;
-  ProposalNotFound;
-  NotImplemented;
-};
+type VoteErr = variant { AlreadyVoted; ProposalEnded; ProposalNotFound };
 type VoteOk = variant { ProposalOpen; ProposalRefused; ProposalAccepted };
 type createProposalResult = variant {
   ok : CreateProposalOk;

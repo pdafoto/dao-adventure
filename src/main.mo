@@ -1,12 +1,17 @@
 import Result "mo:base/Result";
 import HashMap "mo:base/HashMap";
+import TrieMap "mo:base/TrieMap";
 import Principal "mo:base/Principal";
 import Text "mo:base/Text";
+import Nat "mo:base/Nat";
+import Hash "mo:base/Hash";
 import Account "account";
 import Buffer "mo:base/Buffer";
 import Iter "mo:base/Iter";
 import Blob "mo:base/Blob";
 import Debug "mo:base/Debug";
+import Array "mo:base/Array";
+import List "mo:base/List";
 import Http "http";
 actor class DAO() = this {
 
@@ -206,13 +211,15 @@ actor class DAO() = this {
 		votes : Int;
 		voters : [Principal];
 	};
-
+	//1. Define a mutable variable `nextProposalId` of type `Nat` that will keep track of the next proposal's identifier. Every time a proposal is created, this variable will be incremented by `1`.
+	var nextProposalId : Nat = 1;
+	//2. Define an immutable variable called `proposals` of type `TrieMap<Nat, Proposal>`. In this datastructure, the keys are of type `Nat` and represent the unique identifier of each proposal. The values are of type `Proposal` and represent the proposal itself.
+	let proposals : TrieMap.TrieMap<Nat, Proposal> = TrieMap.TrieMap(Nat.equal, Hash.hash);
 	public type CreateProposalOk = Nat;
 
 	public type CreateProposalErr = {
 		#NotDAOMember;
 		#NotEnoughTokens;
-		#NotImplemented; // This is just a placeholder - can be removed once you start Level 4
 	};
 
 	public type createProposalResult = Result<CreateProposalOk, CreateProposalErr>;
@@ -227,21 +234,106 @@ actor class DAO() = this {
 		#ProposalNotFound;
 		#AlreadyVoted;
 		#ProposalEnded;
-		#NotImplemented; // This is just a placeholder - can be removed once you start Level 4
 	};
 
 	public type voteResult = Result<VoteOk, VoteErr>;
-
+	//3. Implement the `createProposal` function. This function takes a `manifest` of type `Text` as a parameter and returns a `CreateProposalResult` type. This function will be used to create a new proposal. The function should check if the caller is a member of the DAO and if they have enough tokens to create a proposal. If that's the case, the function should create a new proposal and return the `ProposalCreated` case of the `CreateProposalOk` type with the value of the proposal's `id` field. Otherwise it should return the corresponding error.
 	public shared ({ caller }) func createProposal(manifest : Text) : async createProposalResult {
-		return #err(#NotImplemented);
+		switch (members.get(caller)) {
+			case (null) {
+				return #err(#NotDAOMember);
+			};
+			case (?member) {
+				let account : Account.Account = {
+					owner = caller;
+					subaccount = null;
+				};
+				let balance = ledger.get(account);
+				switch (balance) {
+					case (null) {
+						return #err(#NotEnoughTokens);
+					};
+					case (? balance) {
+						if (balance < 1) {
+							return #err(#NotEnoughTokens);
+						}
+						else {
+							let proposal : Proposal = {
+								id = nextProposalId;
+								status = #Open;
+								manifest = manifest;
+								votes = 0;
+								voters = [];
+							};
+							proposals.put(nextProposalId, proposal);
+							nextProposalId += 1;
+							return #ok(nextProposalId - 1);
+						};
+					};
+				};
+			};
+		};
 	};
-
+	//4. Implement the `getProposal` query function. This function takes a `Nat` as an argument and returns the proposal with the corresponding identifier as a `?Proposal`. If no proposal exists with the given identifier, it should return `null`.
 	public query func getProposal(id : Nat) : async ?Proposal {
-		return null;
+		proposals.get(id);
 	};
-
+	//5. Implement the `vote` function that takes a `Nat` and a `Bool` as arguments and returns a `VoteResult` type. This function will be used to vote on a proposal. The `Nat` represents the identifier of the proposal and the `Bool` represents the vote. If the `Bool` is `true`, the vote is an `Up` vote. If the `Bool` is `false`, the vote is a `Down` vote. The function should perfom necessary checks before accepting a vote.
 	public shared ({ caller }) func vote(id : Nat, vote : Bool) : async voteResult {
-		return #err(#NotImplemented);
+		switch (proposals.get(id)) {
+			case (null) {
+				return #err(#ProposalNotFound);
+			};
+			case (? proposal) {
+				let hasVoted = switch(Array.find<Principal>(proposal.voters, func(x) {x == caller})) {
+					case (null) { false };
+					case (_) { true };
+				};
+				if hasVoted return #err(#AlreadyVoted);
+				if (proposal.status != #Open) return #err(#ProposalEnded);
+				let power = await balanceOf({
+					owner = caller;
+					subaccount = null;
+				});
+				var votes = proposal.votes;
+				if (vote) {
+					votes += power;
+				}
+				else votes -= power;
+				let v = Array.append<Principal>(proposal.voters, [caller]);
+				if (votes >= 1) {
+					let p = {
+						id = nextProposalId;
+						status = #Accepted;
+						manifest = proposal.manifest;
+						votes = votes;
+						voters = v;
+					};
+					proposals.put(proposal.id, p);
+					return #ok(#ProposalAccepted);
+				};
+				if (votes <= -1) {
+					let p = {
+						id = proposal.id;
+						status = #Rejected;
+						manifest = proposal.manifest;
+						votes = votes;
+						voters = v;
+					};
+					proposals.put(proposal.id, p);
+					return #ok(#ProposalRefused);
+				};
+				let p = {
+					id = proposal.id;
+					status = #Open;
+					manifest = proposal.manifest;
+					votes = votes;
+					voters = v;
+				};
+				proposals.put(proposal.id, p);
+				return #ok(#ProposalOpen);
+			};
+		};
 	};
 
 	///////////////

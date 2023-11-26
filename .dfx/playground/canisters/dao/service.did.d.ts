@@ -6,7 +6,6 @@ export interface Account {
   'subaccount' : [] | [Subaccount],
 }
 export type CreateProposalErr = { 'NotDAOMember' : null } |
-  { 'NotImplemented' : null } |
   { 'NotEnoughTokens' : null };
 export type CreateProposalOk = bigint;
 export interface DAO {
@@ -20,6 +19,7 @@ export interface DAO {
   'getMember' : ActorMethod<[Principal], Result_1>,
   'getName' : ActorMethod<[], string>,
   'getProposal' : ActorMethod<[bigint], [] | [Proposal]>,
+  'getStats' : ActorMethod<[], DAOInfo>,
   'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
   'mint' : ActorMethod<[Principal, bigint], undefined>,
   'numberOfMembers' : ActorMethod<[], bigint>,
@@ -32,6 +32,14 @@ export interface DAO {
   'updateMember' : ActorMethod<[Member], Result>,
   'vote' : ActorMethod<[bigint, boolean], voteResult>,
   'whoami' : ActorMethod<[], Principal>,
+}
+export interface DAOInfo {
+  'member' : Array<string>,
+  'numberOfMembers' : bigint,
+  'logo' : string,
+  'name' : string,
+  'manifesto' : string,
+  'goals' : Array<string>,
 }
 export type HeaderField = [string, string];
 export interface HttpRequest {
@@ -83,8 +91,7 @@ export type StreamingStrategy = {
 export type Subaccount = Uint8Array | number[];
 export type VoteErr = { 'AlreadyVoted' : null } |
   { 'ProposalEnded' : null } |
-  { 'ProposalNotFound' : null } |
-  { 'NotImplemented' : null };
+  { 'ProposalNotFound' : null };
 export type VoteOk = { 'ProposalOpen' : null } |
   { 'ProposalRefused' : null } |
   { 'ProposalAccepted' : null };

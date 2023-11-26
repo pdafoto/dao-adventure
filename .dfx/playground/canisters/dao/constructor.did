@@ -17,7 +17,6 @@ type VoteOk =
 type VoteErr = 
  variant {
    AlreadyVoted;
-   NotImplemented;
    ProposalEnded;
    ProposalNotFound;
  };
@@ -89,6 +88,15 @@ type HeaderField =
    text;
    text;
  };
+type DAOInfo = 
+ record {
+   goals: vec text;
+   logo: text;
+   manifesto: text;
+   member: vec text;
+   name: text;
+   numberOfMembers: nat;
+ };
 type DAO = 
  service {
    addGoal: (text) -> ();
@@ -101,6 +109,7 @@ type DAO =
    getMember: (principal) -> (Result_1) query;
    getName: () -> (text) query;
    getProposal: (nat) -> (opt Proposal) query;
+   getStats: () -> (DAOInfo) query;
    http_request: (HttpRequest) -> (HttpResponse);
    mint: (principal, nat) -> ();
    numberOfMembers: () -> (nat) query;
@@ -119,7 +128,6 @@ type CreateProposalErr =
  variant {
    NotDAOMember;
    NotEnoughTokens;
-   NotImplemented;
  };
 type Account = 
  record {

@@ -9,7 +9,6 @@ export const idlFactory = ({ IDL }) => {
   const CreateProposalOk = IDL.Nat;
   const CreateProposalErr = IDL.Variant({
     'NotDAOMember' : IDL.Null,
-    'NotImplemented' : IDL.Null,
     'NotEnoughTokens' : IDL.Null,
   });
   const createProposalResult = IDL.Variant({
@@ -28,6 +27,14 @@ export const idlFactory = ({ IDL }) => {
     'votes' : IDL.Int,
     'voters' : IDL.Vec(IDL.Principal),
     'manifest' : IDL.Text,
+  });
+  const DAOInfo = IDL.Record({
+    'member' : IDL.Vec(IDL.Text),
+    'numberOfMembers' : IDL.Nat,
+    'logo' : IDL.Text,
+    'name' : IDL.Text,
+    'manifesto' : IDL.Text,
+    'goals' : IDL.Vec(IDL.Text),
   });
   const HeaderField = IDL.Tuple(IDL.Text, IDL.Text);
   const HttpRequest = IDL.Record({
@@ -71,7 +78,6 @@ export const idlFactory = ({ IDL }) => {
     'AlreadyVoted' : IDL.Null,
     'ProposalEnded' : IDL.Null,
     'ProposalNotFound' : IDL.Null,
-    'NotImplemented' : IDL.Null,
   });
   const voteResult = IDL.Variant({ 'ok' : VoteOk, 'err' : VoteErr });
   const DAO = IDL.Service({
@@ -85,6 +91,7 @@ export const idlFactory = ({ IDL }) => {
     'getMember' : IDL.Func([IDL.Principal], [Result_1], ['query']),
     'getName' : IDL.Func([], [IDL.Text], ['query']),
     'getProposal' : IDL.Func([IDL.Nat], [IDL.Opt(Proposal)], ['query']),
+    'getStats' : IDL.Func([], [DAOInfo], ['query']),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], []),
     'mint' : IDL.Func([IDL.Principal, IDL.Nat], [], []),
     'numberOfMembers' : IDL.Func([], [IDL.Nat], ['query']),
