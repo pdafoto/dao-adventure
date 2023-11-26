@@ -339,32 +339,35 @@ actor class DAO() = this {
 	///////////////
 	// LEVEL #5 //
 	/////////////
+	//1. Select a logo for the DAO. You will need to find a logo that is available as an SVG file. You can use a website like [FlatIcon](https://www.flaticon.com/fr/).
+	//2. Define an immutable variable called `logo` of type `Text` and set it to the value of the SVG file.
+	let logo : Text = "<svg id='Layer_1' height='512' viewBox='0 0 24 24' width='512' xmlns='http://www.w3.org/2000/svg' data-name='Layer 1'><path d='m17 0a1 1 0 0 0 -1 1c0 2.949-2.583 4-5 4h-7a4 4 0 0 0 -4 4v2a3.979 3.979 0 0 0 1.514 3.109l3.572 7.972a3.233 3.233 0 0 0 2.953 1.919 2.982 2.982 0 0 0 2.72-4.2l-2.2-4.8h2.441c2.417 0 5 1.051 5 4a1 1 0 0 0 2 0v-18a1 1 0 0 0 -1-1zm-8.063 20.619a.983.983 0 0 1 -.898 1.381 1.232 1.232 0 0 1 -1.126-.734l-2.808-6.266h2.254zm7.063-6.019a7.723 7.723 0 0 0 -5-1.6h-7a2 2 0 0 1 -2-2v-2a2 2 0 0 1 2-2h7a7.723 7.723 0 0 0 5-1.595zm7.9.852a1 1 0 0 1 -1.342.448l-2-1a1 1 0 0 1 .894-1.79l2 1a1 1 0 0 1 .448 1.337zm-3.79-9a1 1 0 0 1 .448-1.342l2-1a1 1 0 1 1 .894 1.79l-2 1a1 1 0 0 1 -1.342-.448zm-.11 3.548a1 1 0 0 1 1-1h2a1 1 0 0 1 0 2h-2a1 1 0 0 1 -1-1z'/></svg>";
 
-	// func _getWebpage() : Text {
-	//     var webpage = "<style>" #
-	//     "body { text-align: center; font-family: Arial, sans-serif; background-color: #f0f8ff; color: #333; }" #
-	//     "h1 { font-size: 3em; margin-bottom: 10px; }" #
-	//     "hr { margin-top: 20px; margin-bottom: 20px; }" #
-	//     "em { font-style: italic; display: block; margin-bottom: 20px; }" #
-	//     "ul { list-style-type: none; padding: 0; }" #
-	//     "li { margin: 10px 0; }" #
-	//     "li:before { content: '👉 '; }" #
-	//     "svg { max-width: 150px; height: auto; display: block; margin: 20px auto; }" #
-	//     "h2 { text-decoration: underline; }" #
-	//     "</style>";
+	func _getWebpage() : Text {
+		var webpage = "<style>" #
+		"body { text-align: center; font-family: Arial, sans-serif; background-color: #f0f8ff; color: #333; }" #
+		"h1 { font-size: 3em; margin-bottom: 10px; }" #
+		"hr { margin-top: 20px; margin-bottom: 20px; }" #
+		"em { font-style: italic; display: block; margin-bottom: 20px; }" #
+		"ul { list-style-type: none; padding: 0; }" #
+		"li { margin: 10px 0; }" #
+		"li:before { content: '👉 '; }" #
+		"svg { max-width: 150px; height: auto; display: block; margin: 20px auto; }" #
+		"h2 { text-decoration: underline; }" #
+		"</style>";
 
-	//     webpage := webpage # "<div><h1>" # name # "</h1></div>";
-	//     webpage := webpage # "<em>" # manifesto # "</em>";
-	//     webpage := webpage # "<div>" # logo # "</div>";
-	//     webpage := webpage # "<hr>";
-	//     webpage := webpage # "<h2>Our goals:</h2>";
-	//     webpage := webpage # "<ul>";
-	//     for (goal in goals.vals()) {
-	//         webpage := webpage # "<li>" # goal # "</li>";
-	//     };
-	//     webpage := webpage # "</ul>";
-	//     return webpage;
-	// };
+		webpage := webpage # "<div><h1>" # name # "</h1></div>";
+		webpage := webpage # "<em>" # manifesto # "</em>";
+		webpage := webpage # "<div>" # logo # "</div>";
+		webpage := webpage # "<hr>";
+		webpage := webpage # "<h2>Our goals:</h2>";
+		webpage := webpage # "<ul>";
+		for (goal in goals.vals()) {
+			webpage := webpage # "<li>" # goal # "</li>";
+		};
+		webpage := webpage # "</ul>";
+		return webpage;
+	};
 
 	public type DAOInfo = {
 		name : Text;
@@ -376,24 +379,26 @@ actor class DAO() = this {
 	};
 	public type HttpRequest = Http.Request;
 	public type HttpResponse = Http.Response;
-
+	//4. Implement the `http_request` query function. This function takes a `request` of type `HttpRequest` as a parameter and returns a `HttpResponse` object. This function will be used to serve the webpage of your DAO.
 	public func http_request(request : HttpRequest) : async HttpResponse {
+		let page = _getWebpage();
 		return ({
-			status_code = 404;
-			headers = [];
-			body = Blob.fromArray([]);
+			status_code = 200 : Nat16;
+			headers = [("Content-Type", "text/html; charset=UTF-8")];
+			body = Text.encodeUtf8(page);
 			streaming_strategy = null;
 		});
 	};
-
+	//3. Implement the function `getStats`. This function takes no parameters and returns a `DAOInfo` object that contains updated information about the DAO.
 	public query func getStats() : async DAOInfo {
+		let memberNames = Iter.map(members.vals(), func (member : Member) : Text { member.name });
 		return ({
-			name = "";
-			manifesto = "";
-			goals = [];
-			member = [];
-			logo = "";
-			numberOfMembers = 0;
+			name = name;
+			manifesto = manifesto;
+			goals = Buffer.toArray(goals);
+			member = Iter.toArray(memberNames);
+			logo = logo;
+			numberOfMembers = members.size();
 		});
 	};
 
